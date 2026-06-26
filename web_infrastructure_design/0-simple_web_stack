@@ -1,1 +1,43 @@
-https://github.com/Norahxj/holbertonschool-system_engineering-devops/blob/main/web_infrastructure_design/images/simple_web_stack.png
+Simple Web Stack
+
+
+
+Diagram:
+
+https://github.com/Norahxj/holbertonschool-system_engineering-devops/blob/master/web_infrastructure_design/images/simple_web_stack.png
+
+
+
+
+
+A user wants to access [www.foobar.com](http://www.foobar.com) from their computer. The browser asks DNS to resolve the domain name into an IP address. The DNS record points [www.foobar.com](http://www.foobar.com) to the server IP address 8.8.8.8, then the browser sends a request to the server using HTTP or HTTPS over TCP/IP.
+
+
+
+This infrastructure uses one server. A server is a physical or virtual machine that provides services to other computers over a network. In this case, the server contains the full website stack: Nginx web server, application server, application files, and MySQL database.
+
+
+
+The domain name foobar.com gives users a readable name instead of using the IP address directly. The www in [www.foobar.com](http://www.foobar.com) is a subdomain. In this task, www is configured as an A record because it points the hostname to the IPv4 address 8.8.8.8.
+
+
+
+Nginx is the web server. Its role is to receive HTTP or HTTPS requests from the user’s browser. It can serve static files directly and forward dynamic requests to the application server.
+
+
+
+The application server runs the backend logic of the website and uses the application files, which are the website’s code base. The MySQL database stores and manages persistent data, such as users, posts, products, or other website information.
+
+
+
+Issues:
+
+This infrastructure has a SPOF, which means Single Point of Failure. Since everything is hosted on one server, if the server goes down, the whole website becomes unavailable.
+
+
+
+It can also cause downtime during maintenance, such as deploying new code or restarting Nginx or the application server.
+
+
+
+It cannot scale well if traffic increases because all requests go to one machine. If the server becomes overloaded, the website may become slow or unavailable.
