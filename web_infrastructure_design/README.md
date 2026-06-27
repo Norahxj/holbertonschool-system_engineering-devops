@@ -68,3 +68,35 @@ Third, there are security issues because there is no firewall. Without firewalls
 Fourth, there is no HTTPS. This means communication between the user and the website is not encrypted, which can expose sensitive data.
 
 Finally, there is no monitoring. Without monitoring, the team cannot easily detect server failures, high CPU or memory usage, database problems, slow response times, or website downtime.
+
+---
+
+# 2. Secured and Monitored Web Infrastructure
+
+![Secured and Monitored Web Infrastructure Diagram](./images/secured_and_monitored_web_infrastructure.png)
+
+## Explanation
+
+A user wants to access the website `www.foobar.com` from their computer. The user types the domain name into the browser. DNS resolves `www.foobar.com` to the public IP address of the load balancer. The user’s browser sends an **HTTPS** request to the infrastructure. The request passes through a firewall, reaches the **HAProxy load balancer**, and is then forwarded to one of the backend servers.
+
+This infrastructure uses three servers in total. The first server contains the **HAProxy load balancer**, an **SSL certificate**, and a monitoring client. The two backend servers each contain an **Nginx web server**, an **application server**, a set of **application files**, a **MySQL database**, and a monitoring client.
+
+Three firewalls are added to improve security. A firewall is used to control incoming and outgoing network traffic based on security rules. The first firewall protects the load balancer from unwanted external traffic. The other two firewalls protect the backend servers and help make sure that only allowed traffic, such as traffic coming from the load balancer, can reach them.
+
+An SSL certificate is added to serve `www.foobar.com` over **HTTPS**. HTTPS encrypts the traffic between the user’s browser and the website. This protects sensitive data, such as login information, personal information, cookies, and session data, from being read or modified by attackers during transmission.
+
+Monitoring clients are added to all three servers. Monitoring is used to observe the health and performance of the infrastructure. It helps detect problems such as server downtime, high CPU usage, high memory usage, disk problems, network issues, slow response times, and application errors.
+
+The monitoring tool collects data through a monitoring client, also called an agent or data collector, installed on each server. The agent collects metrics, logs, and service information from the server, then sends that data to a monitoring platform such as Sumo Logic, Datadog, New Relic, or another monitoring service. The monitoring platform can then display dashboards and send alerts when something unusual happens.
+
+To monitor the web server QPS, which means Queries Per Second, we need to collect request metrics from Nginx. This can be done by enabling Nginx access logs or an Nginx status module, then configuring the monitoring agent to collect and send the number of requests per second to the monitoring platform. A dashboard or alert can then be created to track the QPS of the web server.
+
+## Issues with this Infrastructure
+
+This infrastructure is more secure and monitored than the previous one, but it still has several problems.
+
+First, terminating SSL at the load balancer level can be an issue because the traffic is encrypted only between the user and the load balancer. After the load balancer decrypts the request, the traffic between the load balancer and the backend servers may travel without encryption. If the internal network is compromised, sensitive data could be exposed.
+
+Second, having only one MySQL server capable of accepting writes is an issue. In a Primary-Replica database setup, only the Primary database handles write operations. If the Primary database goes down, the application may not be able to create, update, or delete data unless a failover system is configured. This makes the Primary database a Single Point of Failure for write operations.
+
+Third, having servers with all the same components can be a problem. Each backend server contains a web server, application server, and database. This can create resource competition because the database, web server, and application server are all using CPU, memory, disk, and network resources on the same machines. It also makes the infrastructure harder to scale because each layer cannot be scaled independently. For example, if only the database needs more power, we cannot scale just the database layer easily. It can also create security and maintenance issues because different services with different responsibilities are mixed together on the same servers.

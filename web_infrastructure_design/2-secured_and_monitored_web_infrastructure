@@ -1,0 +1,55 @@
+Secured and Monitored Web Infrastructure
+
+
+
+Diagram:
+
+https://github.com/Norahxj/holbertonschool-system_engineering-devops/blob/master/web_infrastructure_design/images/secured_and_monitored_web_infrastructure.png
+
+
+
+
+
+
+
+A user wants to access [www.foobar.com](http://www.foobar.com) from their computer. DNS resolves [www.foobar.com](http://www.foobar.com) to the public IP address of the load balancer. The user sends an HTTPS request, which passes through a firewall and reaches the HAProxy load balancer. The load balancer then forwards the request to one of the two backend servers.
+
+
+
+This infrastructure uses three servers. The first server contains the HAProxy load balancer, an SSL certificate, and a monitoring client. The two backend servers each contain Nginx, an application server, application files, a MySQL database, and a monitoring client.
+
+
+
+Three firewalls are added to improve security. A firewall controls incoming and outgoing network traffic based on security rules. The first firewall protects the load balancer from unwanted external traffic, while the other two firewalls protect the backend servers and allow only authorized traffic, such as traffic coming from the load balancer.
+
+
+
+An SSL certificate is added so the website can be served over HTTPS. HTTPS encrypts the communication between the user’s browser and the website. This protects sensitive data such as passwords, cookies, session data, and personal information from being exposed during transmission.
+
+
+
+Monitoring clients are added to collect data from each server. Monitoring is used to track the health and performance of the infrastructure, such as CPU usage, memory usage, disk usage, network traffic, uptime, response time, and errors.
+
+
+
+The monitoring tool collects data through an agent or data collector installed on each server. The agent collects metrics and logs, then sends them to a monitoring platform such as Sumo Logic, Datadog, New Relic, or another monitoring service.
+
+
+
+To monitor the web server QPS, which means Queries Per Second, we need to collect request metrics from Nginx. This can be done by enabling Nginx access logs or an Nginx status module, then configuring the monitoring client to send the request count per second to the monitoring platform.
+
+
+
+Issues:
+
+
+
+Terminating SSL at the load balancer level can be an issue because traffic is encrypted only between the user and the load balancer. After the load balancer decrypts the request, traffic between the load balancer and the backend servers may be unencrypted. If the internal network is compromised, sensitive data could be exposed.
+
+
+
+Having only one MySQL server capable of accepting writes is also an issue. In a Primary-Replica setup, only the Primary database accepts write operations. If the Primary database goes down, the application may not be able to create, update, or delete data unless failover is configured.
+
+
+
+Having servers with all the same components can be a problem because the web server, application server, and database all share the same CPU, memory, disk, and network resources. This can cause performance issues and makes it harder to scale each layer independently.
