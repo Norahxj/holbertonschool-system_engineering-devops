@@ -29,3 +29,42 @@ First, it has a **SPOF**, which means **Single Point of Failure**. Since everyth
 Second, there can be downtime during maintenance. For example, if we need to deploy new code or restart Nginx or the application server, the website may become temporarily unavailable because there is no second server to continue serving traffic.
 
 Third, this infrastructure cannot scale well if there is too much incoming traffic. Since there is only one server, all requests go to the same machine. If traffic increases too much, the server can become overloaded in CPU, memory, disk, or network usage, causing the website to become slow or unavailable.
+
+
+---
+
+# 1. Distributed Web Infrastructure
+
+![Distributed Web Infrastructure Diagram](./images/distributed_web_infrastructure.png)
+
+## Explanation
+
+A user wants to access the website `www.foobar.com` from their computer. The user types the domain name into the browser. DNS resolves `www.foobar.com` to the public IP address of the load balancer. The user’s request reaches the **HAProxy load balancer** first, then the load balancer forwards the request to one of the two backend servers.
+
+This infrastructure uses three servers in total. The first server contains the **HAProxy load balancer**. The other two servers host the website. Each backend server contains an **Nginx web server**, an **application server**, a set of **application files**, and a **MySQL database**.
+
+The load balancer is added to distribute incoming traffic between the two backend servers. This improves availability and allows the infrastructure to handle more traffic than a single-server setup. If one backend server becomes unavailable, the load balancer can forward traffic to the other available server.
+
+The second backend server is added for redundancy and scalability. Instead of having only one server handling all user requests, both backend servers can serve the website. Each server has its own Nginx web server, application server, and application files, so both servers are able to process requests.
+
+The load balancer is configured with the **Round Robin** distribution algorithm. Round Robin works by sending requests to each backend server in order. For example, the first request goes to Server 1, the second request goes to Server 2, the third request goes back to Server 1, and so on.
+
+This setup is an **Active-Active** setup because both backend servers are active and receiving traffic at the same time. In an Active-Active setup, all servers are used to handle requests. In an Active-Passive setup, one server handles traffic while the other server stays on standby and is only used if the active server fails.
+
+The MySQL databases are configured as a **Primary-Replica** cluster. The Primary database handles write operations, such as creating, updating, or deleting data. The Replica database copies data from the Primary database and can be used for read operations. Replication helps improve redundancy and can also improve read performance.
+
+The difference between the Primary node and the Replica node is that the application writes data to the Primary database, while the Replica database mainly receives copied data from the Primary. The Replica should not usually be used for direct write operations because this could create data conflicts or inconsistency.
+
+## Issues with this Infrastructure
+
+This infrastructure still has several problems.
+
+First, the load balancer is a **SPOF**, which means **Single Point of Failure**. If the HAProxy load balancer goes down, users cannot reach the backend servers, even if the backend servers are still running.
+
+Second, the Primary database is also a **SPOF** for write operations. If the Primary database goes down, the application may not be able to create, update, or delete data unless a failover system is configured.
+
+Third, there are security issues because there is no firewall. Without firewalls, the servers may expose unnecessary ports and services to the Internet.
+
+Fourth, there is no HTTPS. This means communication between the user and the website is not encrypted, which can expose sensitive data.
+
+Finally, there is no monitoring. Without monitoring, the team cannot easily detect server failures, high CPU or memory usage, database problems, slow response times, or website downtime.

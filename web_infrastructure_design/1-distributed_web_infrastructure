@@ -1,0 +1,69 @@
+Distributed Web Infrastructure
+
+
+
+Diagram:
+
+https://github.com/Norahxj/holbertonschool-system_engineering-devops/blob/master/web_infrastructure_design/images/distributed_web_infrastructure.png
+
+
+
+
+
+
+
+A user wants to access the website [www.foobar.com](http://www.foobar.com) from their computer. The user types the domain name into the browser. DNS resolves [www.foobar.com](http://www.foobar.com) to the public IP address of the load balancer. The user’s request reaches the HAProxy load balancer first, then the load balancer forwards the request to one of the two backend servers.
+
+
+
+This infrastructure has three servers in total. One server is used as the load balancer, and two servers are used to host the website. Each backend server contains Nginx, an application server, application files, and a MySQL database.
+
+
+
+The load balancer is added to distribute incoming traffic between the two backend servers. This improves availability and allows the infrastructure to handle more traffic than a single server. If one backend server becomes unavailable, the load balancer can send traffic to the other available server.
+
+
+
+The second backend server is added for redundancy and scalability. Instead of having only one server handling all requests, both backend servers can serve users. Each server has its own Nginx web server, application server, and application files, so both servers are able to process requests.
+
+
+
+The load balancer is configured with the Round Robin distribution algorithm. Round Robin works by sending requests one by one to each backend server in order. For example, the first request goes to Server 2, the second request goes to Server 3, the third request goes back to Server 2, and so on.
+
+
+
+This setup is Active-Active because both backend servers are active and receiving traffic at the same time. In an Active-Active setup, all servers are used to handle requests. In an Active-Passive setup, one server handles traffic while the other server stays on standby and is only used if the active server fails.
+
+
+
+The MySQL databases are configured as a Primary-Replica cluster. The Primary database handles write operations, such as creating, updating, or deleting data. The Replica database copies data from the Primary database and can be used for read operations. Replication helps provide redundancy and can improve read performance.
+
+
+
+The difference between the Primary node and the Replica node is that the application writes data to the Primary database, while the Replica database mainly receives copied data from the Primary. The Replica should not usually be used for direct writes because this could create data conflicts or inconsistency.
+
+
+
+Issues:
+
+This infrastructure still has some problems.
+
+
+
+The load balancer is a SPOF, which means Single Point of Failure. If the HAProxy load balancer goes down, users cannot reach the backend servers even if the backend servers are still running.
+
+
+
+The Primary database is also a SPOF for write operations. If the Primary database goes down, the application may not be able to create, update, or delete data unless a failover system is configured.
+
+
+
+There are security issues because there is no firewall. Without firewalls, the servers may expose unnecessary ports and services to the Internet.
+
+
+
+There is also no HTTPS. This means communication between the user and the website is not encrypted, which can expose sensitive data.
+
+
+
+There is no monitoring in this infrastructure. Without monitoring, the team cannot easily detect server failures, high CPU or memory usage, database problems, slow response times, or downtime.
