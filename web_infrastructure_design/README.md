@@ -100,3 +100,41 @@ First, terminating SSL at the load balancer level can be an issue because the tr
 Second, having only one MySQL server capable of accepting writes is an issue. In a Primary-Replica database setup, only the Primary database handles write operations. If the Primary database goes down, the application may not be able to create, update, or delete data unless a failover system is configured. This makes the Primary database a Single Point of Failure for write operations.
 
 Third, having servers with all the same components can be a problem. Each backend server contains a web server, application server, and database. This can create resource competition because the database, web server, and application server are all using CPU, memory, disk, and network resources on the same machines. It also makes the infrastructure harder to scale because each layer cannot be scaled independently. For example, if only the database needs more power, we cannot scale just the database layer easily. It can also create security and maintenance issues because different services with different responsibilities are mixed together on the same servers.
+
+---
+
+# 3. Scale Up
+
+![Scale Up Web Infrastructure Diagram](./images/scale_up.png)
+
+## Explanation
+
+A user wants to access the website `www.foobar.com` from their computer. The user types the domain name into the browser. DNS resolves `www.foobar.com` to the virtual IP address of the load balancer cluster. The request reaches one of the **HAProxy load balancers**, then the load balancer forwards the request to the web server.
+
+This infrastructure separates the main components of the web stack into their own servers. The load balancing layer is handled by two HAProxy load balancers configured as a cluster. The web server, application server, and database are each placed on separate servers.
+
+A second load balancer is added to remove the load balancer as a Single Point of Failure. In the previous infrastructure, if the only load balancer failed, users would not be able to reach the website. By adding another HAProxy load balancer and configuring both load balancers as a cluster, the infrastructure becomes more available.
+
+The two HAProxy load balancers can be configured as an **Active-Passive cluster** using a virtual IP address. In this setup, one load balancer actively receives traffic, while the second load balancer stays on standby. If the active load balancer fails, the passive load balancer takes over the virtual IP address and continues serving traffic. This helps avoid downtime if one load balancer goes down.
+
+The web server is placed on its own server. The role of the web server, such as **Nginx**, is to receive HTTP or HTTPS requests and serve static content. It can also forward dynamic requests to the application server.
+
+The application server is placed on its own server. The application server runs the backend logic of the website and executes the application files. Separating it from the web server makes the infrastructure easier to scale and maintain.
+
+The database is placed on its own server. The database, such as **MySQL**, stores and manages persistent data. Keeping the database separate improves organization and allows the database layer to be scaled, secured, backed up, and maintained independently.
+
+Splitting the components into separate servers is important because each layer has different responsibilities and resource needs. The web server may need to handle many network requests, the application server may need more CPU for business logic, and the database may need more memory and disk performance. By separating them, each layer can be scaled and optimized independently.
+
+## Why These Elements Are Added
+
+The additional load balancer is added to increase availability and avoid having only one load balancer as a Single Point of Failure.
+
+The load balancer cluster is added so that if one HAProxy server fails, the other one can continue handling traffic.
+
+The separate web server is added to handle web traffic and serve static content independently.
+
+The separate application server is added to run the backend logic independently from the web server.
+
+The separate database server is added to store and manage application data independently from the web and application layers.
+
+This design is more scalable than previous infrastructures because the web, application, and database layers can now be improved, maintained, and scaled separately.

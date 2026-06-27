@@ -1,0 +1,39 @@
+Scale Up Web Infrastructure
+
+
+
+Diagram:
+
+https://github.com/Norahxj/holbertonschool-system_engineering-devops/blob/master/web_infrastructure_design/images/scale_up.png
+
+
+
+
+
+
+
+This infrastructure hosts [www.foobar.com](http://www.foobar.com) using a scaled-up web architecture. DNS resolves [www.foobar.com](http://www.foobar.com) to the virtual IP address of the load balancer cluster. The request reaches one of the HAProxy load balancers, then the load balancer forwards the request to the web server.
+
+
+
+A second HAProxy load balancer is added and configured as a cluster with the first load balancer. This removes the load balancer as a Single Point of Failure. The load balancers can be configured in an Active-Passive setup using a virtual IP address, where one load balancer handles traffic and the other takes over if the active one fails.
+
+
+
+The infrastructure also separates the main components into their own servers. The web server, application server, and database server are no longer all placed on the same machine.
+
+
+
+The web server, such as Nginx, is placed on its own server to handle HTTP or HTTPS requests and serve static content.
+
+
+
+The application server is placed on its own server to run the backend logic and execute the application files.
+
+
+
+The database server, such as MySQL, is placed on its own server to store and manage persistent application data.
+
+
+
+This design improves scalability and maintainability because each layer can be managed, optimized, and scaled independently. The web layer, application layer, and database layer have different resource needs, so separating them helps reduce resource competition and makes the infrastructure cleaner.
